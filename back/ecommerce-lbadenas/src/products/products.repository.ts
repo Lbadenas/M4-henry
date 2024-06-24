@@ -47,11 +47,11 @@ export class ProducstRepository {
     return productsList;
   }
   async getProductById(id: string) {
-    //verifico que el usuario exista
-    const foundProduct = products.findIndex((u) => u.id === id);
-    if (foundProduct === -1) return `no se encontro usuario con ${id}`;
-    // quitamos el password del usuario que encontro
+    // Verifico que el producto exista
+    const foundProduct = products.find((u) => u.id === id);
+    if (!foundProduct) return `No se encontró producto con ID ${id}`;
 
+    // Retornamos el producto encontrado
     return foundProduct;
   }
   async addProduct(product: Products) {
