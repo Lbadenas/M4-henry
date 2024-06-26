@@ -60,14 +60,14 @@ export class ProducstRepository {
   }
 
   async updateProduct(id: string, product: Products) {
-    //verifico que exista el usuario
+    //verifico que exista el porducto
     const foundProduct = products.findIndex((u) => u.id === id);
     if (foundProduct === -1) return `no se encontro un producto con ${id}`;
     products[foundProduct] = { ...products[foundProduct], ...product };
     return products[foundProduct].id;
   }
   async deleteProduct(id: string) {
-    //verifico que exista el usuario
+    //verifico que exista el ptoducto
     const foundProduct = products.findIndex((u) => u.id === id);
     if (foundProduct === -1) return `no se encontro un producto con ${id}`;
     products.splice(foundProduct, 1);
