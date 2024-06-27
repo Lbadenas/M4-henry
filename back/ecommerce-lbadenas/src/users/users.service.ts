@@ -8,7 +8,7 @@ export class UsersService {
     return this.userRepository.getUsers(page, limit);
   }
   getUser(id: string) {
-    return this.userRepository.getUserById(id);
+    return this.userRepository.getById(id);
   }
   addUser(user: any) {
     return this.userRepository.addUser(user);

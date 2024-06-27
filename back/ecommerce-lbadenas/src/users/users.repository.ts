@@ -1,91 +1,52 @@
 import { Injectable } from '@nestjs/common';
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  password: string;
-  address: string;
-  phone: string;
-  country?: string | undefined;
-  city?: string | undefined;
-}
-
-//* BBDD
-const users: User[] = [
-  {
-    id: '1001',
-    name: 'Homero Simpson',
-    email: 'homero@mail.com',
-    password: 'donuts123',
-    address: '742 Evergreen Terrace',
-    phone: '555-1234',
-    country: 'USA',
-    city: 'Springfield',
-  },
-  {
-    id: '1002',
-    name: 'Marge Simpson',
-    email: 'marge@mail.com',
-    password: 'bluehair',
-    address: '742 Evergreen Terrace',
-    phone: '555-5678',
-    country: 'USA',
-    city: 'Springfield',
-  },
-  {
-    id: '1003',
-    name: 'Lisa Simpson',
-    email: 'lisa@mail.com',
-    password: 'saxophone',
-    address: '742 Evergreen Terrace',
-    phone: '555-8765',
-    country: 'USA',
-    city: 'Springfield',
-  },
-];
+import { InjectRepository } from '@nestjs/typeorm';
+import { Users } from 'src/entities/users.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UsersRepository {
+  constructor(
+    @InjectRepository(Users) private usersRepository: Repository<Users>,
+  ) {}
+
   async getUsers(page: number, limit: number) {
-    const start = (page - 1) * limit;
-    const end = start + limit;
-    const userList = users.slice(start, end);
-    return userList.map(({ password, ...userNoPassword }) => userNoPassword);
+    const skip = (page - 1) * limit;
+    const users = await this.usersRepository.find({
+      take: limit,
+      skip: skip,
+    });
+    return users.map(({ password, ...userNoPassword }) => userNoPassword);
   }
 
-  async getUserById(id: string) {
-    //verifico que el usuario exista
-    const foundUser = users.findIndex((u) => u.id === id);
-    if (foundUser === -1) return `no se encontro usuario con ${id}`;
-    // quitamos el password del usuario que encontro
-    const { password, ...userNoPassword } = users[foundUser];
+  async getById(id: string) {
+    const user = await this.usersRepository.findOne({
+      where: { id },
+      relations: {
+        orders: true,
+      },
+    });
+    if (!user) return `no se encontro el usuario con id ${id}`;
+    const { password, ...userNoPassword } = user;
     return userNoPassword;
   }
-
-  async addUser(user: User) {
-    users.push({ ...user, id: user.email });
-    return user.email;
+  async addUser(user: Users) {
+    const newUser = await this.usersRepository.save(user);
+    const { password, ...userNoPassword } = newUser;
+    return userNoPassword;
   }
-
-  async updateUser(id: string, user: User) {
-    //verifico que exista el usuario
-    const foundUser = users.findIndex((u) => u.id === id);
-    if (foundUser === -1) return `no se encontro usuario con ${id}`;
-    users[foundUser] = { ...users[foundUser], ...user };
-    return users[foundUser].id;
+  async updateUser(id: string, user: Users) {
+    await this.usersRepository.update(id, user);
+    const updateUser = await this.usersRepository.findOneBy({ id });
+    const { password, ...userNoPassword } = updateUser;
+    return userNoPassword;
   }
-
   async deleteUser(id: string) {
-    //verifico que exista el usuario
-    const foundUser = users.findIndex((u) => u.id === id);
-    if (foundUser === -1) return `no se encontro usuario con ${id}`;
-    users.splice(foundUser, 1);
-    return id;
-    // si yo tengo [0,1,2,3] al borrar un solo elemento con el splice quedaria [0,1,3]
+    const user = await this.usersRepository.findOneBy({ id });
+    this.usersRepository.remove(user);
+    const { password, ...userNoPassword } = user;
+    return userNoPassword;
   }
-
-  getUserByEmail(email: string) {
-    return users.find((users) => users.email === email);
+  async getUserByEmail(email: string) {
+    return await this.usersRepository.findOneBy({ email });
   }
 }
