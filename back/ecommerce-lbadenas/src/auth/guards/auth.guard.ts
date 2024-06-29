@@ -4,12 +4,13 @@ import { Observable } from 'rxjs';
 
 function Validate(request: Request) {
   const authHeader = request.headers?.authorization;
+  if (!authHeader) return false;
   // estoy guardando Basic : email:password
   const auth = authHeader.split(' ')[1]; //* [ "Basic", "email:password" ]
   if (!auth) return false;
 
   const [email, password] = auth.split(':'); //* [ "email", password ]
-  if (!email && !password) return false;
+  if (!email || !password) return false;
 
   return true;
 }
