@@ -16,8 +16,8 @@ const config = {
   // npm run build => tranpilar las migraciones
   autoLoadEntities: true,
   logging: false,
-  synchronize: true,
-  dropSchema: true,
+  synchronize: false,
+  dropSchema: false,
 };
 
 export const typeOrmConfig = registerAs('typeorm', () => config);
