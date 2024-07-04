@@ -9,7 +9,9 @@ import {
   MaxLength,
   IsNumberString,
   isString,
+  Validate,
 } from 'class-validator';
+import { matchPassword } from 'src/decorators/matchPassword.decorator';
 
 export class CreateUserDto {
   // id: string;
@@ -39,6 +41,10 @@ export class CreateUserDto {
   })
   password: string;
 
+  @IsNotEmpty()
+  @Validate(matchPassword, ['password'])
+  confirmPassword: string;
+
   @IsNotEmpty({ message: 'La dirección es obligatoria.' })
   @IsString({ message: 'La dirección debe ser una cadena de texto.' })
   @MinLength(3, { message: 'La dirección debe tener al menos 3 caracteres.' })
@@ -49,7 +55,7 @@ export class CreateUserDto {
 
   @IsNotEmpty({ message: 'El número de teléfono es obligatorio.' })
   @IsNumberString({}, { message: 'El número de teléfono debe ser un número.' })
-  phone: string;
+  phone: number;
 
   @IsNotEmpty({ message: 'El país es obligatorio.' })
   @IsString({ message: 'El país debe ser una cadena de texto.' })

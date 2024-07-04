@@ -19,6 +19,9 @@ export class ProductsRepository {
       relations: {
         category: true,
       },
+      order: {
+        id: 'ASC',
+      },
     });
     const start = (page - 1) * limit;
     const end = start + limit;

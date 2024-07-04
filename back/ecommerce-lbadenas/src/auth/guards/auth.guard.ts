@@ -1,26 +1,44 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { Request } from 'express';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { Observable } from 'rxjs';
-
-function Validate(request: Request) {
-  const authHeader = request.headers?.authorization;
-  if (!authHeader) return false;
-  // estoy guardando Basic : email:password
-  const auth = authHeader.split(' ')[1]; //* [ "Basic", "email:password" ]
-  if (!auth) return false;
-
-  const [email, password] = auth.split(':'); //* [ "email", password ]
-  if (!email || !password) return false;
-
-  return true;
-}
 
 @Injectable()
 export class AuthGuard implements CanActivate {
+  constructor(private readonly jwtService: JwtService) {}
+
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
-    return Validate(request);
+
+    // Extraer token desde el encabezado
+    const authHeader = request.headers['authorization'];
+    if (!authHeader) {
+      throw new UnauthorizedException('No se ha enviado el TOKEN');
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      throw new UnauthorizedException('No se ha enviado el TOKEN');
+    }
+
+    try {
+      const secret = process.env.JWT_SECRET;
+      const user = this.jwtService.verify(token, { secret });
+
+      if (!user) {
+        throw new UnauthorizedException('Error al validar token');
+      }
+
+      request.user = user;
+      return true;
+    } catch (error) {
+      throw new UnauthorizedException('Error al validar token');
+    }
   }
 }

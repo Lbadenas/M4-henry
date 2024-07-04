@@ -33,15 +33,12 @@ export class UsersController {
     return this.usersService.getUser(id);
   }
 
-  @Post()
-  addUser(@Body() user: CreateUserDto) {
-    //validacion se va ahacer ocn un DTO
-    return this.usersService.addUser(user);
-  }
-
   @Put(`:id`)
   @UseGuards(AuthGuard)
-  updateUser(@Param(`id`, ParseUUIDPipe) id: string, @Body() user: any) {
+  updateUser(
+    @Param(`id`, ParseUUIDPipe) id: string,
+    @Body() user: Partial<CreateUserDto>,
+  ) {
     return this.usersService.updateUser(id, user);
   }
 

@@ -14,6 +14,7 @@ import { FileUploadService } from './file-upload.service';
 @Controller('files')
 export class FileUploadController {
   constructor(private readonly fileUploadService: FileUploadService) {}
+
   @Post('uploadImage/:id')
   // extrae imagen desde el formulario del body del request+
   @UseInterceptors(FileInterceptor('file'))
@@ -27,7 +28,7 @@ export class FileUploadController {
             message: 'Supera el maximo permitido: 200kb',
           }),
           new FileTypeValidator({
-            fileType: /(.jpg|.png |.jpeg | .webp)/,
+            fileType: /(.jpg|.png|.jpeg|.webp)/,
           }),
         ],
       }),

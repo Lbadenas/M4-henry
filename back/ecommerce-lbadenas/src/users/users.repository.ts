@@ -29,23 +29,31 @@ export class UsersRepository {
     const { password, ...userNoPassword } = user;
     return userNoPassword;
   }
-  async addUser(user: Users) {
+
+  async addUser(user: Partial<Users>) {
     const newUser = await this.usersRepository.save(user);
-    const { password, ...userNoPassword } = newUser;
+    //traerlo de la base de dato
+    const dbUser = await this.usersRepository.findOneBy({
+      id: newUser.id,
+    });
+    const { password, ...userNoPassword } = dbUser;
     return userNoPassword;
   }
+
   async updateUser(id: string, user: Users) {
     await this.usersRepository.update(id, user);
     const updateUser = await this.usersRepository.findOneBy({ id });
     const { password, ...userNoPassword } = updateUser;
     return userNoPassword;
   }
+
   async deleteUser(id: string) {
     const user = await this.usersRepository.findOneBy({ id });
     this.usersRepository.remove(user);
     const { password, ...userNoPassword } = user;
     return userNoPassword;
   }
+
   async getUserByEmail(email: string) {
     return await this.usersRepository.findOneBy({ email });
   }

@@ -9,6 +9,7 @@ export class OrdersController {
   @Post()
   addOrder(@Body() order: CreateOrderDto) {
     const { userId, Products } = order;
+
     return this.orderService.addOrder(userId, Products);
   }
 
