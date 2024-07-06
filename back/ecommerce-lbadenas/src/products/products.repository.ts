@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Categories } from 'src/entities/categories.entity';
 import { Products } from 'src/entities/products.entity';
 import { Repository } from 'typeorm';
 import * as data from '../utils/data.json';
+import { log } from 'console';
+import { UpdateProductDto } from 'src/dto/Products.dto';
 
 @Injectable()
 export class ProductsRepository {
@@ -29,12 +31,18 @@ export class ProductsRepository {
     return products;
   }
   async getProductById(id: string) {
-    const product = await this.productRepository.findOneBy({ id });
+    const product = await this.productRepository.findOne({
+      where: { id },
+      relations: {
+        category: true,
+      },
+    });
     if (!product) {
-      return `producto con ${id}no encontrado `;
+      throw new NotFoundException(`Producto con ID ${id} no encontrado`);
     }
     return product;
   }
+
   async addProducts() {
     //verificamos que exista la categoria
     //LANZA ERROR SI NO EXISTECATEGORIA
@@ -65,9 +73,19 @@ export class ProductsRepository {
     return 'Productos agregados';
   }
 
-  async updateProduct(id: string, product: Products) {
+  async updateProduct(id: string, product: Partial<UpdateProductDto>) {
+    // Verificar si el producto existe
+    const existingProduct = await this.productRepository.findOneBy({ id });
+
+    if (!existingProduct) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+
+    // Actualizar el producto
     await this.productRepository.update(id, product);
-    const updateproduct = await this.productRepository.findOneBy({ id });
-    return updateproduct;
+
+    // Obtener el producto actualizado
+    const updatedProduct = await this.productRepository.findOneBy({ id });
+    return updatedProduct;
   }
 }
