@@ -24,7 +24,7 @@ export class AuthService {
 
     //firmar token
 
-    const payLoad = { id: user.id, email: user.email };
+    const payLoad = { id: user.id, email: user.email, isAdmin: user.isAdmin };
     const token = this.jwtService.sign(payLoad);
 
     return { message: 'usuario loggeado...', token };

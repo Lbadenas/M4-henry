@@ -13,13 +13,17 @@ import {
 import { UsersService } from './users.service';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { CreateUserDto } from 'src/dto/users.dto.ts';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from './roles.enum';
+import { RolesGuards } from 'src/auth/guards/roles.guard';
 
 @Controller('users') // Define la ruta a /users
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @UseGuards(AuthGuard)
+  @Roles(Role.admin)
+  @UseGuards(AuthGuard, RolesGuards)
   getUsers(@Query(`page`) page: string, @Query(`limit`) limit: string) {
     !page ? (page = `1`) : page;
     !limit ? (limit = `5`) : limit;

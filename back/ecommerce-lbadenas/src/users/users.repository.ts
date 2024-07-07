@@ -14,6 +14,7 @@ export class UsersRepository {
     const users = await this.usersRepository.find({
       take: limit,
       skip: skip,
+      select: ['id', 'address', 'city', 'country', 'name', 'phone'],
     });
     return users.map(({ password, ...userNoPassword }) => userNoPassword);
   }
@@ -26,7 +27,7 @@ export class UsersRepository {
       },
     });
     if (!user) return `no se encontro el usuario con id ${id}`;
-    const { password, ...userNoPassword } = user;
+    const { password, isAdmin, ...userNoPassword } = user;
     return userNoPassword;
   }
 

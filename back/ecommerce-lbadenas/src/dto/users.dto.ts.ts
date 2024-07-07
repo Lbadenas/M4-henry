@@ -10,6 +10,9 @@ import {
   IsNumberString,
   isString,
   Validate,
+  isNumber,
+  IsNumber,
+  IsEmpty,
 } from 'class-validator';
 import { matchPassword } from 'src/decorators/matchPassword.decorator';
 
@@ -54,7 +57,7 @@ export class CreateUserDto {
   address: string;
 
   @IsNotEmpty({ message: 'El número de teléfono es obligatorio.' })
-  @IsNumberString({}, { message: 'El número de teléfono debe ser un número.' })
+  @IsNumber()
   phone: number;
 
   @IsNotEmpty({ message: 'El país es obligatorio.' })
@@ -68,6 +71,9 @@ export class CreateUserDto {
   @MinLength(5, { message: 'La ciudad debe tener al menos 5 caracteres.' })
   @MaxLength(20, { message: 'La ciudad no puede tener más de 20 caracteres.' })
   city: string;
+
+  @IsEmpty()
+  isAdmin?: boolean;
 }
 
 export class LogginUserDto extends PickType(CreateUserDto, [

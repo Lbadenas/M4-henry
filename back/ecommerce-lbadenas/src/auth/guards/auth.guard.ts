@@ -7,6 +7,8 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Observable } from 'rxjs';
 
+import { Role } from 'src/users/roles.enum';
+
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(private readonly jwtService: JwtService) {}
@@ -34,8 +36,12 @@ export class AuthGuard implements CanActivate {
       if (!user) {
         throw new UnauthorizedException('Error al validar token');
       }
+      //adjuntar fecha de expiracion
 
+      user.exp = new Date(user.exp * 1000);
+      user.roles = user.isAdmin ? [Role.admin] : [Role.user];
       request.user = user;
+
       return true;
     } catch (error) {
       throw new UnauthorizedException('Error al validar token');
