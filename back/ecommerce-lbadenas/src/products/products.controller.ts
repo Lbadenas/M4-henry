@@ -6,11 +6,17 @@ import {
   Param,
   Body,
   ParseUUIDPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { Products } from 'src/entities/products.entity';
 import { UpdateProductDto } from 'src/dto/Products.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/users/roles.enum';
+import { RolesGuards } from 'src/auth/guards/roles.guard';
 
+@ApiTags('products')
 @Controller('products') // Define la ruta a /users
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
@@ -32,8 +38,10 @@ export class ProductsController {
   getProductsById(@Param(`id`, ParseUUIDPipe) id: string) {
     return this.productsService.getProductById(id);
   }
-
+  @ApiBearerAuth()
   @Put(`:id`)
+  @Roles(Role.admin)
+  @UseGuards(AuthGuard, RolesGuards)
   updateProduct(
     @Param(`id`, ParseUUIDPipe) id: string,
     @Body() product: Partial<UpdateProductDto>,

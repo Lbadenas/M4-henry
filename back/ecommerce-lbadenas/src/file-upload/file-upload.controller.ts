@@ -6,17 +6,48 @@ import {
   ParseFilePipe,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadService } from './file-upload.service';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
 
+@ApiTags('files')
 @Controller('files')
 export class FileUploadController {
   constructor(private readonly fileUploadService: FileUploadService) {}
 
+  @ApiBearerAuth()
   @Post('uploadImage/:id')
-  // extrae imagen desde el formulario del body del request+
+  @UseGuards(AuthGuard)
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Subir imagen',
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiOperation({ summary: 'Subir una imagen' })
+  @ApiResponse({
+    status: 201,
+    description: 'La imagen ha sido subida correctamente.',
+  })
+  @ApiResponse({ status: 400, description: 'Solicitud incorrecta.' })
   @UseInterceptors(FileInterceptor('file'))
   uploadimage(
     @Param('id') productId: string,
